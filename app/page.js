@@ -1,6 +1,7 @@
 "use client";
 import { Input, Container, FormLabel, Stack, Button } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Home() {
   const CLIENT_ID = "Client ID";
@@ -20,6 +21,71 @@ export default function Home() {
   const [redirectUrl, setRedirectUrl] = useState("");
   const [code, setCode] = useState("");
   const [accessToken, setAccessToken] = useState("");
+
+  const authorise = async () => {
+    const authorizeUrl =
+      "https://api.upstox.com/v2/login/authorization/dialog/";
+
+    if (!clientId || !redirectUrl) {
+      console.error(
+        "CLIENT_ID or REDIRECT_URL is not defined in the environment variables.",
+      );
+      return;
+    }
+
+    const url = `${authorizeUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}`;
+    console.log(url);
+
+    // Make the HTTP GET request using Axios
+    try {
+      const response = await axios.get(url);
+      console.log(response.data); // handle response if needed
+    } catch (error) {
+      console.error("Error making the request:", error);
+    }
+
+    // Optionally, open the URL in the default browser
+    open(url);
+  };
+
+  const login = async () => {
+    try {
+      if (!code || !clientId || !apiSecret || !redirectUrl) {
+        console.error("Environment variables are not properly defined.");
+        return;
+      }
+
+      const data = new URLSearchParams({
+        code: code,
+        client_id: clientId,
+        client_secret: apiSecret,
+        redirect_uri: redirectUrl,
+        grant_type: "authorization_code",
+      });
+
+      const response = await axios.post(
+        "https://api.upstox.com/v2/login/authorization/token",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+        },
+      );
+
+      const userInfo = response.data;
+
+      if (userInfo.access_token) {
+        setAccessToken(userInfo.access_token);
+        console.log("Access Token:", userInfo.access_token);
+      } else {
+        console.error("Error: access_token field not found");
+      }
+    } catch (error) {
+      console.error("Error during login:", error.message || error);
+    }
+  };
 
   useEffect(() => {
     const clientIdKey = localStorage.getItem(CLIENT_ID_KEY);
@@ -83,7 +149,9 @@ export default function Home() {
             size="sm"
           />
         </div>
-        <Button colorScheme="blue">Authorise</Button>
+        <Button colorScheme="blue" onClick={() => authorise()}>
+          Authorise
+        </Button>
         <div>
           <FormLabel>{CODE}</FormLabel>
           <Input
@@ -93,7 +161,9 @@ export default function Home() {
             size="sm"
           />
         </div>
-        <Button colorScheme="blue">Login</Button>
+        <Button colorScheme="blue" onClick={() => login()}>
+          Login
+        </Button>
         <div>
           <FormLabel>{ACCESS_TOKEN}</FormLabel>
           <Input
