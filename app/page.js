@@ -1,5 +1,16 @@
 "use client";
-import { Input, Container, FormLabel, Stack, Button } from "@chakra-ui/react";
+import {
+  Input,
+  Container,
+  FormLabel,
+  Stack,
+  Button,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -120,63 +131,77 @@ export default function Home() {
 
   return (
     <Container maxW="xl" style={{ marginTop: "30px" }}>
-      <Stack spacing={3}>
-        <div>
-          <FormLabel>{CLIENT_ID}</FormLabel>
-          <Input
-            value={clientId}
-            onChange={(event) => setClientId(event.target.value)}
-            placeholder={CLIENT_ID}
-            size="sm"
-          />
-          {}
-        </div>
-        <div>
-          <FormLabel>{API_SECRET}</FormLabel>
-          <Input
-            value={apiSecret}
-            onChange={(event) => setApiSecret(event.target.value)}
-            placeholder={API_SECRET}
-            size="sm"
-          />
-        </div>
-        <div>
-          <FormLabel>{REDIRECT_URL}</FormLabel>
-          <Input
-            value={redirectUrl}
-            onChange={(event) => setRedirectUrl(event.target.value)}
-            placeholder={REDIRECT_URL}
-            size="sm"
-          />
-        </div>
-        <Button colorScheme="blue" onClick={() => authorise()}>
-          Authorise
-        </Button>
-        <div>
-          <FormLabel>{CODE}</FormLabel>
-          <Input
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            placeholder={CODE}
-            size="sm"
-          />
-        </div>
-        <Button colorScheme="blue" onClick={() => login()}>
-          Login
-        </Button>
-        <div>
-          <FormLabel>{ACCESS_TOKEN}</FormLabel>
-          <Input
-            value={accessToken}
-            onChange={(event) => setAccessToken(event.target.value)}
-            placeholder={ACCESS_TOKEN}
-            size="sm"
-          />
-        </div>
-        <Button colorScheme="teal" onClick={() => save()}>
-          Save
-        </Button>
-      </Stack>
+      <Tabs>
+        <TabList>
+          <Tab>Login</Tab>
+          <Tab>Screener</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Stack spacing={3}>
+              <div>
+                <FormLabel>{CLIENT_ID}</FormLabel>
+                <Input
+                  value={clientId}
+                  onChange={(event) => setClientId(event.target.value)}
+                  placeholder={CLIENT_ID}
+                  size="sm"
+                />
+                {}
+              </div>
+              <div>
+                <FormLabel>{API_SECRET}</FormLabel>
+                <Input
+                  value={apiSecret}
+                  onChange={(event) => setApiSecret(event.target.value)}
+                  placeholder={API_SECRET}
+                  size="sm"
+                />
+              </div>
+              <div>
+                <FormLabel>{REDIRECT_URL}</FormLabel>
+                <Input
+                  value={redirectUrl}
+                  onChange={(event) => setRedirectUrl(event.target.value)}
+                  placeholder={REDIRECT_URL}
+                  size="sm"
+                />
+              </div>
+              <Button colorScheme="blue" onClick={() => authorise()}>
+                Authorise
+              </Button>
+              <div>
+                <FormLabel>{CODE}</FormLabel>
+                <Input
+                  value={code}
+                  onChange={(event) => setCode(event.target.value)}
+                  placeholder={CODE}
+                  size="sm"
+                />
+              </div>
+              <Button colorScheme="blue" onClick={() => login()}>
+                Login
+              </Button>
+              <div>
+                <FormLabel>{ACCESS_TOKEN}</FormLabel>
+                <Input
+                  value={accessToken}
+                  onChange={(event) => setAccessToken(event.target.value)}
+                  placeholder={ACCESS_TOKEN}
+                  size="sm"
+                />
+              </div>
+              <Button colorScheme="teal" onClick={() => save()}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+          <TabPanel>
+            <p>Screener</p>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Container>
   );
 }
