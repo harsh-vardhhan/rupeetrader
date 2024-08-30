@@ -1,0 +1,15 @@
+{
+  "name": "rupeetrader-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "rupeetrader_wasm_bg.wasm",
+    "rupeetrader_wasm.js",
+    "rupeetrader_wasm.d.ts"
+  ],
+  "main": "rupeetrader_wasm.js",
+  "types": "rupeetrader_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
