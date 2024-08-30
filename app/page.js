@@ -13,6 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import init, {
+  ScanStrategyParams,
+  scan_strategy,
+} from "../public/wasm/pkg/rupeetrader_wasm.js";
 
 export default function Home() {
   const CLIENT_ID = "Client ID";
@@ -129,6 +133,18 @@ export default function Home() {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   };
 
+  const scan = async () => {
+    await init();
+    const params = new ScanStrategyParams(
+      "NSE_INDEX:Nifty 50",
+      "BEAR_CALL_SPREAD",
+      accessToken,
+    );
+
+    // Pass the object to the scan_strategy function
+    const result = scan_strategy(params);
+  };
+
   return (
     <div>
       <Tabs>
@@ -200,7 +216,9 @@ export default function Home() {
             </Container>
           </TabPanel>
           <TabPanel>
-            <p>Screener</p>
+            <Button colorScheme="blue" onClick={() => scan()}>
+              Scan
+            </Button>
           </TabPanel>
         </TabPanels>
       </Tabs>
