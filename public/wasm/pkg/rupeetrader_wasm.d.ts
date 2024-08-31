@@ -1,33 +1,41 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {ScanStrategyParams} params
-* @returns {string}
+* @param {string} json_str
 */
-export function scan_strategy(params: ScanStrategyParams): string;
+export function print_instruments(json_str: string): void;
 /**
 */
-export class ScanStrategyParams {
+export class Instrument {
   free(): void;
+}
 /**
-* @param {string} instrument_key
-* @param {string} strategy
-* @param {string} access_token
 */
-  constructor(instrument_key: string, strategy: string, access_token: string);
+export class MarketData {
+  free(): void;
+}
+/**
+*/
+export class OptionData {
+  free(): void;
+}
+/**
+*/
+export class OptionGreeks {
+  free(): void;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_scanstrategyparams_free: (a: number, b: number) => void;
-  readonly scanstrategyparams_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
-  readonly scan_strategy: (a: number, b: number) => void;
+  readonly __wbg_marketdata_free: (a: number, b: number) => void;
+  readonly __wbg_optiongreeks_free: (a: number, b: number) => void;
+  readonly __wbg_optiondata_free: (a: number, b: number) => void;
+  readonly __wbg_instrument_free: (a: number, b: number) => void;
+  readonly print_instruments: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;

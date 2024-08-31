@@ -13,6 +13,9 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
+import init, {
+  print_instruments,
+} from "../public/wasm/pkg/rupeetrader_wasm.js";
 
 export default function Home() {
   const CLIENT_ID = "Client ID";
@@ -43,6 +46,7 @@ export default function Home() {
   };
 
   const scan = async () => {
+    await init();
     const instrumentKey = "NSE_INDEX%7CNifty%2050";
     const optionChain = await getOptionChain(
       instrumentKey,
@@ -52,6 +56,13 @@ export default function Home() {
     if (optionChain.status === "success") {
       const optionChainData = optionChain.data;
       console.log(optionChainData);
+
+      // Convert the optionChainData to a JSON string
+      const optionChainJson = JSON.stringify(optionChainData);
+
+      // Call the Rust function with the JSON string
+
+      print_instruments(optionChainJson);
     }
   };
 
