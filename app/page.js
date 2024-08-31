@@ -13,7 +13,7 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
+  Card,
   Tr,
   Th,
   Td,
@@ -182,31 +182,32 @@ export default function Home() {
               </Stack>
             </Container>
           </TabPanel>
-          <TabPanel>
+          <TabPanel style={{ alignItems: "center" }}>
             <Heading as="h2" size="2xl">
               Bear Call Spread
             </Heading>
             <Button colorScheme="blue" onClick={scan}>
               Scan
             </Button>
-            <TableContainer>
-              <Table variant="simple">
-                <TableCaption>
-                  Imperial to metric conversion factors
-                </TableCaption>
-                <Thead>
-                  <Tr>
-                    <Th>Strike</Th>
-                    <Th isNumeric>Max Profit</Th>
-                    <Th isNumeric>Max Loss</Th>
-                    <Th isNumeric>Breakeven</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Strategies strategies={strategies} />
-                </Tbody>
-              </Table>
-            </TableContainer>
+            <Container maxW="xl">
+              <Card>
+                <TableContainer>
+                  <Table variant="simple">
+                    <Thead>
+                      <Tr>
+                        <Th>Strike</Th>
+                        <Th isNumeric>Max Profit</Th>
+                        <Th isNumeric>Max Loss</Th>
+                        <Th isNumeric>Breakeven</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      <Strategies strategies={strategies} />
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Container>
           </TabPanel>
         </TabPanels>
       </Tabs>
