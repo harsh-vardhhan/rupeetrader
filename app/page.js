@@ -196,14 +196,10 @@ export default function Home() {
                 </TableCaption>
                 <Thead>
                   <Tr>
-                    <Th>
-                      <Tag colorScheme={"red"}>Sell strike</Tag>
-                    </Th>
-                    <Th>
-                      <Tag colorScheme={"green"}>Buy strike</Tag>
-                    </Th>
+                    <Th>Strike</Th>
                     <Th isNumeric>Max Profit</Th>
                     <Th isNumeric>Max Loss</Th>
+                    <Th isNumeric>Breakeven</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -223,10 +219,18 @@ const Strategies = ({ strategies }) => {
   return strategies.map((strategy, i) => {
     return (
       <Tr key={i}>
-        <Td>{strategy.sell_strike}</Td>
-        <Td>{strategy.buy_strike}</Td>
+        <Td>
+          <Tag style={{ marginBottom: 1 }} colorScheme={"red"}>
+            S
+          </Tag>{" "}
+          {strategy.sell_strike}
+          <div style={{ marginTop: 3 }}>
+            <Tag colorScheme={"green"}>B</Tag> {strategy.buy_strike}
+          </div>
+        </Td>
         <Td isNumeric>{strategy.max_profit}</Td>
         <Td isNumeric>{strategy.max_loss}</Td>
+        <Td isNumeric>{strategy.breakeven}</Td>
       </Tr>
     );
   });
