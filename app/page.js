@@ -12,11 +12,7 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import init, {
-  ScanStrategyParams,
-  scan_strategy,
-} from "../public/wasm/pkg/rupeetrader_wasm.js";
+import { authorise, login, getMarketQuote, getOptionChain } from "./api";
 
 export default function Home() {
   const CLIENT_ID = "Client ID";
@@ -37,69 +33,18 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [accessToken, setAccessToken] = useState("");
 
-  const authorise = async () => {
-    const authorizeUrl =
-      "https://api.upstox.com/v2/login/authorization/dialog/";
-
-    if (!clientId || !redirectUrl) {
-      console.error(
-        "CLIENT_ID or REDIRECT_URL is not defined in the environment variables.",
-      );
-      return;
-    }
-
-    const url = `${authorizeUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}`;
-    console.log(url);
-
-    // Make the HTTP GET request using Axios
-    try {
-      const response = await axios.get(url);
-      console.log(response.data); // handle response if needed
-    } catch (error) {
-      console.error("Error making the request:", error);
-    }
-
-    // Optionally, open the URL in the default browser
-    open(url);
+  const handleAuthorise = async () => {
+    await authorise(clientId, redirectUrl);
   };
 
-  const login = async () => {
-    try {
-      if (!code || !clientId || !apiSecret || !redirectUrl) {
-        console.error("Environment variables are not properly defined.");
-        return;
-      }
+  const handleLogin = async () => {
+    const accessToken = await login(code, clientId, apiSecret, redirectUrl);
+    setAccessToken(accessToken);
+  };
 
-      const data = new URLSearchParams({
-        code: code,
-        client_id: clientId,
-        client_secret: apiSecret,
-        redirect_uri: redirectUrl,
-        grant_type: "authorization_code",
-      });
-
-      const response = await axios.post(
-        "https://api.upstox.com/v2/login/authorization/token",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Accept: "application/json",
-          },
-        },
-      );
-
-      const userInfo = response.data;
-
-      if (userInfo.access_token) {
-        setAccessToken(userInfo.access_token);
-        console.log("Access Token:", userInfo.access_token);
-      } else {
-        console.error("Error: access_token field not found");
-      }
-    } catch (error) {
-      console.error("Error during login:", error.message || error);
-    }
+  const scan = async () => {
+    await getMarketQuote("NSE_INDEX%7CNifty%2050", accessToken);
+    await getOptionChain("NSE_INDEX%7CNifty%2050", "2024-09-05", accessToken);
   };
 
   useEffect(() => {
@@ -131,18 +76,6 @@ export default function Home() {
     localStorage.setItem(REDIRECT_URL_KEY, redirectUrl);
     localStorage.setItem(CODE_KEY, code);
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  };
-
-  const scan = async () => {
-    await init();
-    const params = new ScanStrategyParams(
-      "NSE_INDEX:Nifty 50",
-      "BEAR_CALL_SPREAD",
-      accessToken,
-    );
-
-    // Pass the object to the scan_strategy function
-    const result = scan_strategy(params);
   };
 
   return (
@@ -185,7 +118,7 @@ export default function Home() {
                     size="sm"
                   />
                 </div>
-                <Button colorScheme="blue" onClick={() => authorise()}>
+                <Button colorScheme="blue" onClick={() => handleAuthorise()}>
                   Authorise
                 </Button>
                 <div>
@@ -197,7 +130,7 @@ export default function Home() {
                     size="sm"
                   />
                 </div>
-                <Button colorScheme="blue" onClick={() => login()}>
+                <Button colorScheme="blue" onClick={() => handleLogin()}>
                   Login
                 </Button>
                 <div>
