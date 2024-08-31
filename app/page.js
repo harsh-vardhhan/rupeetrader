@@ -12,7 +12,7 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { authorise, login, getMarketQuote, getOptionChain } from "./api";
+import { authorise, login, getOptionChain } from "./api";
 
 export default function Home() {
   const CLIENT_ID = "Client ID";
@@ -43,8 +43,16 @@ export default function Home() {
   };
 
   const scan = async () => {
-    await getMarketQuote("NSE_INDEX%7CNifty%2050", accessToken);
-    await getOptionChain("NSE_INDEX%7CNifty%2050", "2024-09-05", accessToken);
+    const instrumentKey = "NSE_INDEX%7CNifty%2050";
+    const optionChain = await getOptionChain(
+      instrumentKey,
+      "2024-09-05",
+      accessToken,
+    );
+    if (optionChain.status === "success") {
+      const optionChainData = optionChain.data;
+      console.log(optionChainData);
+    }
   };
 
   useEffect(() => {
@@ -149,7 +157,7 @@ export default function Home() {
             </Container>
           </TabPanel>
           <TabPanel>
-            <Button colorScheme="blue" onClick={() => scan()}>
+            <Button colorScheme="blue" onClick={scan}>
               Scan
             </Button>
           </TabPanel>

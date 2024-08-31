@@ -66,16 +66,6 @@ export const login = async (code, clientId, apiSecret, redirectUrl) => {
   }
 };
 
-export const getMarketQuote = async (instrumentKey, accessToken) => {
-  const url = `https://api.upstox.com/v2/market-quote/ltp?instrument_key=${instrumentKey}`;
-  const headers = {
-    Accept: "application/json",
-    Authorization: `Bearer ${accessToken}`,
-  };
-
-  return makeGetRequest(url, headers);
-};
-
 export const getOptionChain = async (
   instrumentKey,
   expiryDate,
