@@ -10,11 +10,22 @@ import {
   Tab,
   TabPanels,
   TabPanel,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Heading,
+  Tag,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
 import init, {
-  print_instruments,
+  get_credit_spreads,
 } from "../public/wasm/pkg/rupeetrader_wasm.js";
 
 export default function Home() {
@@ -35,6 +46,7 @@ export default function Home() {
   const [redirectUrl, setRedirectUrl] = useState("");
   const [code, setCode] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [strategies, setStrategies] = useState([]);
 
   const handleAuthorise = async () => {
     await authorise(clientId, redirectUrl);
@@ -55,14 +67,18 @@ export default function Home() {
     );
     if (optionChain.status === "success") {
       const optionChainData = optionChain.data;
-      console.log(optionChainData);
 
       // Convert the optionChainData to a JSON string
       const optionChainJson = JSON.stringify(optionChainData);
 
       // Call the Rust function with the JSON string
 
-      print_instruments(optionChainJson);
+      const credit_spread_strategies =
+        await get_credit_spreads(optionChainJson);
+      const credit_spread_strategies_json = JSON.parse(
+        credit_spread_strategies,
+      );
+      setStrategies(credit_spread_strategies_json);
     }
   };
 
@@ -117,7 +133,6 @@ export default function Home() {
                     placeholder={CLIENT_ID}
                     size="sm"
                   />
-                  {}
                 </div>
                 <div>
                   <FormLabel>{API_SECRET}</FormLabel>
@@ -168,12 +183,51 @@ export default function Home() {
             </Container>
           </TabPanel>
           <TabPanel>
+            <Heading as="h2" size="2xl">
+              Bear Call Spread
+            </Heading>
             <Button colorScheme="blue" onClick={scan}>
               Scan
             </Button>
+            <TableContainer>
+              <Table variant="simple">
+                <TableCaption>
+                  Imperial to metric conversion factors
+                </TableCaption>
+                <Thead>
+                  <Tr>
+                    <Th>
+                      <Tag colorScheme={"red"}>Sell strike</Tag>
+                    </Th>
+                    <Th>
+                      <Tag colorScheme={"green"}>Buy strike</Tag>
+                    </Th>
+                    <Th isNumeric>Max Profit</Th>
+                    <Th isNumeric>Max Loss</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Strategies strategies={strategies} />
+                </Tbody>
+              </Table>
+            </TableContainer>
           </TabPanel>
         </TabPanels>
       </Tabs>
     </div>
   );
 }
+
+const Strategies = ({ strategies }) => {
+  console.log(strategies);
+  return strategies.map((strategy, i) => {
+    return (
+      <Tr key={i}>
+        <Td>{strategy.sell_strike}</Td>
+        <Td>{strategy.buy_strike}</Td>
+        <Td isNumeric>{strategy.max_profit}</Td>
+        <Td isNumeric>{strategy.max_loss}</Td>
+      </Tr>
+    );
+  });
+};
