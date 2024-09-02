@@ -34,7 +34,6 @@ export const authorise = async (clientId, redirectUrl) => {
     client_id: clientId,
     redirect_uri: redirectUrl,
   });
-  console.log(url);
 
   makeGetRequest(url);
 

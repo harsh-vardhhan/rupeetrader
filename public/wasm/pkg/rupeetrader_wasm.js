@@ -115,14 +115,14 @@ function getDataViewMemory0() {
 * @param {string} json_str
 * @returns {string}
 */
-export function get_credit_spreads(json_str) {
+export function bear_call_spread(json_str) {
     let deferred2_0;
     let deferred2_1;
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(json_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        wasm.get_credit_spreads(retptr, ptr0, len0);
+        wasm.bear_call_spread(retptr, ptr0, len0);
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         deferred2_0 = r0;

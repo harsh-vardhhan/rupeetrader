@@ -17,24 +17,15 @@ import {
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
-  Heading,
   Tag,
+  Select,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
-import init, {
-  get_credit_spreads,
-} from "../public/wasm/pkg/rupeetrader_wasm.js";
+import init, { bear_call_spread } from "../public/wasm/pkg/rupeetrader_wasm.js";
 
 export default function Home() {
-  const CLIENT_ID = "Client ID";
-  const API_SECRET = "API Secret";
-  const REDIRECT_URL = "Redirect URL";
-  const CODE = "Code";
-  const ACCESS_TOKEN = "Access Token";
-
   const CLIENT_ID_KEY = "clientId";
   const API_SECRET_KEY = "apiSecret";
   const REDIRECT_URL_KEY = "redirectUrl";
@@ -47,6 +38,14 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [strategies, setStrategies] = useState([]);
+  // select INSTRUMENT and STRATEGY
+  const [instrument, setInstrument] = useState("");
+  const [strategy, setStrategy] = useState("");
+
+  const instruments = {
+    NIFTY: "NSE_INDEX%7CNifty%2050",
+    BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
+  };
 
   const handleAuthorise = async () => {
     await authorise(clientId, redirectUrl);
@@ -59,12 +58,13 @@ export default function Home() {
 
   const scan = async () => {
     await init();
-    const instrumentKey = "NSE_INDEX%7CNifty%2050";
-    const optionChain = await getOptionChain(
-      instrumentKey,
-      "2024-09-05",
-      accessToken,
-    );
+    let expiry = "";
+    if (instrument === instruments.BANK_NIFTY) {
+      expiry = "2024-09-04";
+    } else if (instrument === instruments.NIFTY) {
+      expiry = "2024-09-05";
+    }
+    const optionChain = await getOptionChain(instrument, expiry, accessToken);
     if (optionChain.status === "success") {
       const optionChainData = optionChain.data;
 
@@ -72,13 +72,11 @@ export default function Home() {
       const optionChainJson = JSON.stringify(optionChainData);
 
       // Call the Rust function with the JSON string
-
-      const credit_spread_strategies =
-        await get_credit_spreads(optionChainJson);
-      const credit_spread_strategies_json = JSON.parse(
-        credit_spread_strategies,
-      );
-      setStrategies(credit_spread_strategies_json);
+      if (strategy === "BEAR_CALL_SPREAD") {
+        const list_strategies = bear_call_spread(optionChainJson);
+        const list_strategies_json = JSON.parse(list_strategies);
+        setStrategies(list_strategies_json);
+      }
     }
   };
 
@@ -113,6 +111,14 @@ export default function Home() {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   };
 
+  const handleInstrument = (event) => {
+    setInstrument(event.target.value);
+  };
+
+  const handleStrategy = (event) => {
+    setStrategy(event.target.value);
+  };
+
   return (
     <div>
       <Tabs>
@@ -123,73 +129,47 @@ export default function Home() {
 
         <TabPanels>
           <TabPanel>
-            <Container maxW="xl">
+            <Login
+              clientId={clientId}
+              setClientId={setClientId}
+              apiSecret={apiSecret}
+              setApiSecret={setApiSecret}
+              redirectUrl={redirectUrl}
+              setRedirectUrl={setRedirectUrl}
+              code={code}
+              setCode={setCode}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              handleAuthorise={handleAuthorise}
+              handleLogin={handleLogin}
+              save={save}
+            />
+          </TabPanel>
+          <TabPanel>
+            <Container maxW="md">
               <Stack spacing={3}>
-                <div>
-                  <FormLabel>{CLIENT_ID}</FormLabel>
-                  <Input
-                    value={clientId}
-                    onChange={(event) => setClientId(event.target.value)}
-                    placeholder={CLIENT_ID}
-                    size="sm"
-                  />
-                </div>
-                <div>
-                  <FormLabel>{API_SECRET}</FormLabel>
-                  <Input
-                    value={apiSecret}
-                    onChange={(event) => setApiSecret(event.target.value)}
-                    placeholder={API_SECRET}
-                    size="sm"
-                  />
-                </div>
-                <div>
-                  <FormLabel>{REDIRECT_URL}</FormLabel>
-                  <Input
-                    value={redirectUrl}
-                    onChange={(event) => setRedirectUrl(event.target.value)}
-                    placeholder={REDIRECT_URL}
-                    size="sm"
-                  />
-                </div>
-                <Button colorScheme="blue" onClick={() => handleAuthorise()}>
-                  Authorise
-                </Button>
-                <div>
-                  <FormLabel>{CODE}</FormLabel>
-                  <Input
-                    value={code}
-                    onChange={(event) => setCode(event.target.value)}
-                    placeholder={CODE}
-                    size="sm"
-                  />
-                </div>
-                <Button colorScheme="blue" onClick={() => handleLogin()}>
-                  Login
-                </Button>
-                <div>
-                  <FormLabel>{ACCESS_TOKEN}</FormLabel>
-                  <Input
-                    value={accessToken}
-                    onChange={(event) => setAccessToken(event.target.value)}
-                    placeholder={ACCESS_TOKEN}
-                    size="sm"
-                  />
-                </div>
-                <Button colorScheme="teal" onClick={() => save()}>
-                  Save
+                <Select
+                  placeholder="Select instrument"
+                  value={instrument}
+                  onChange={handleInstrument}
+                >
+                  <option value={instruments.NIFTY}>NIFTY 50</option>
+                  <option value={instruments.BANK_NIFTY}>NIFTY BANK</option>
+                </Select>
+                <Select
+                  placeholder="Select strategy"
+                  value={strategy}
+                  onChange={handleStrategy}
+                >
+                  <option value="BEAR_CALL_SPREAD">Bear Call Spread</option>
+                </Select>
+                <Button colorScheme="blue" onClick={scan}>
+                  Scan
                 </Button>
               </Stack>
             </Container>
-          </TabPanel>
-          <TabPanel style={{ alignItems: "center" }}>
-            <Heading as="h2" size="2xl">
-              Bear Call Spread
-            </Heading>
-            <Button colorScheme="blue" onClick={scan}>
-              Scan
-            </Button>
-            <Container maxW="xl">
+
+            <Container maxW="xl" style={{ marginTop: 10 }}>
               <Card>
                 <TableContainer>
                   <Table variant="simple">
@@ -215,8 +195,84 @@ export default function Home() {
   );
 }
 
+const Login = ({
+  clientId,
+  setClientId,
+  apiSecret,
+  setApiSecret,
+  redirectUrl,
+  setRedirectUrl,
+  code,
+  setCode,
+  accessToken,
+  setAccessToken,
+  handleAuthorise,
+  handleLogin,
+  save,
+}) => {
+  return (
+    <Container maxW="xl">
+      <Stack spacing={3}>
+        <div>
+          <FormLabel>Client ID</FormLabel>
+          <Input
+            value={clientId}
+            onChange={(event) => setClientId(event.target.value)}
+            placeholder="Client ID"
+            size="sm"
+          />
+        </div>
+        <div>
+          <FormLabel>API Secret</FormLabel>
+          <Input
+            value={apiSecret}
+            onChange={(event) => setApiSecret(event.target.value)}
+            placeholder="API Secret"
+            size="sm"
+          />
+        </div>
+        <div>
+          <FormLabel>Redirect URL</FormLabel>
+          <Input
+            value={redirectUrl}
+            onChange={(event) => setRedirectUrl(event.target.value)}
+            placeholder="Redirect URL"
+            size="sm"
+          />
+        </div>
+        <Button colorScheme="blue" onClick={handleAuthorise}>
+          Authorise
+        </Button>
+        <div>
+          <FormLabel>Code</FormLabel>
+          <Input
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            placeholder="Code"
+            size="sm"
+          />
+        </div>
+        <Button colorScheme="blue" onClick={handleLogin}>
+          Login
+        </Button>
+        <div>
+          <FormLabel>Access Token</FormLabel>
+          <Input
+            value={accessToken}
+            onChange={(event) => setAccessToken(event.target.value)}
+            placeholder="Access Token"
+            size="sm"
+          />
+        </div>
+        <Button colorScheme="teal" onClick={save}>
+          Save
+        </Button>
+      </Stack>
+    </Container>
+  );
+};
+
 const Strategies = ({ strategies }) => {
-  console.log(strategies);
   return strategies.map((strategy, i) => {
     return (
       <Tr key={i}>
