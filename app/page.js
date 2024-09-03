@@ -20,7 +20,10 @@ import {
   TableContainer,
   Tag,
   Select,
+  Highlight,
+  Heading,
 } from "@chakra-ui/react";
+import { differenceInDays } from "date-fns";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
 import init, { bear_call_spread } from "../public/wasm/pkg/rupeetrader_wasm.js";
@@ -56,27 +59,45 @@ export default function Home() {
     setAccessToken(accessToken);
   };
 
+  const daysToExpiry = (expiryDate) => {
+    const targetDate = new Date(expiryDate);
+    const currentDate = new Date();
+    const daysLeft = differenceInDays(targetDate, currentDate) + 1;
+    return daysLeft;
+  };
+
   const scan = async () => {
     await init();
-    let expiry = "";
-    if (instrument === instruments.BANK_NIFTY) {
-      expiry = "2024-09-04";
-    } else if (instrument === instruments.NIFTY) {
-      expiry = "2024-09-05";
-    }
-    const optionChain = await getOptionChain(instrument, expiry, accessToken);
-    if (optionChain.status === "success") {
-      const optionChainData = optionChain.data;
 
-      // Convert the optionChainData to a JSON string
-      const optionChainJson = JSON.stringify(optionChainData);
+    if (instrument === instruments.NIFTY) {
+      const expiries = ["2024-09-05", "2024-09-12"];
+      const promises = expiries.map(async (expiry) => {
+        const optionChain = await getOptionChain(
+          instrument,
+          expiry,
+          accessToken,
+        );
+        const optionChainJson = JSON.stringify(optionChain.data);
 
-      // Call the Rust function with the JSON string
-      if (strategy === "BEAR_CALL_SPREAD") {
-        const list_strategies = bear_call_spread(optionChainJson);
-        const list_strategies_json = JSON.parse(list_strategies);
-        setStrategies(list_strategies_json);
-      }
+        if (strategy === "BEAR_CALL_SPREAD") {
+          const list_strategies = bear_call_spread(optionChainJson);
+          const list_strategies_json = JSON.parse(list_strategies);
+          return {
+            daysToExpiry: daysToExpiry(expiry),
+            strategies: list_strategies_json,
+          };
+        }
+
+        // Return a default value or undefined if the strategy doesn't match
+        return {
+          daysToExpiry: daysToExpiry(expiry),
+          strategies: [],
+        };
+      });
+
+      Promise.all(promises).then((finalResult) => {
+        setStrategies(finalResult);
+      });
     }
   };
 
@@ -154,7 +175,6 @@ export default function Home() {
                   onChange={handleInstrument}
                 >
                   <option value={instruments.NIFTY}>NIFTY 50</option>
-                  <option value={instruments.BANK_NIFTY}>NIFTY BANK</option>
                 </Select>
                 <Select
                   placeholder="Select strategy"
@@ -170,23 +190,7 @@ export default function Home() {
             </Container>
 
             <Container maxW="xl" style={{ marginTop: 10 }}>
-              <Card>
-                <TableContainer>
-                  <Table variant="simple">
-                    <Thead>
-                      <Tr>
-                        <Th>Strike</Th>
-                        <Th isNumeric>Max Profit</Th>
-                        <Th isNumeric>Max Loss</Th>
-                        <Th isNumeric>Breakeven</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      <Strategies strategies={strategies} />
-                    </Tbody>
-                  </Table>
-                </TableContainer>
-              </Card>
+              <Expiries strategies={strategies} />
             </Container>
           </TabPanel>
         </TabPanels>
@@ -272,7 +276,45 @@ const Login = ({
   );
 };
 
-const Strategies = ({ strategies }) => {
+const Expiries = ({ strategies = [] }) => {
+  return strategies.map((strategy, i) => {
+    const daysToExpiry = strategy.daysToExpiry;
+    const numberOfDays = daysToExpiry.toString();
+    console.log(typeof numberOfDays);
+    return (
+      <div key={i}>
+        <Heading lineHeight="tall">
+          <Highlight
+            query={`${numberOfDays} Days`}
+            styles={{ px: "2", py: "1", rounded: "full", bg: "teal.100" }}
+          >
+            {`${numberOfDays} Days to expiry`}
+          </Highlight>
+        </Heading>
+
+        <Card style={{ marginTop: 10, marginBottom: 10 }}>
+          <TableContainer>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Strike</Th>
+                  <Th isNumeric>Max Profit</Th>
+                  <Th isNumeric>Max Loss</Th>
+                  <Th isNumeric>Breakeven</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Strategies strategies={strategy.strategies} />
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Card>
+      </div>
+    );
+  });
+};
+
+const Strategies = ({ strategies = [] }) => {
   return strategies.map((strategy, i) => {
     return (
       <Tr key={i}>
