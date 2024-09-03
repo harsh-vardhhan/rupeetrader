@@ -73,32 +73,53 @@ export default function Home() {
     if (instrument === instruments.NIFTY) {
       const expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
       const promises = expiries.map(async (expiry) => {
-        const optionChain = await getOptionChain(
-          instrument,
-          expiry,
-          accessToken,
-        );
-        const optionChainJson = JSON.stringify(optionChain.data);
+        try {
+          const optionChain = await getOptionChain(
+            instrument,
+            expiry,
+            accessToken,
+          );
 
-        if (strategy === "BEAR_CALL_SPREAD") {
-          const list_strategies = bear_call_spread(optionChainJson);
-          const list_strategies_json = JSON.parse(list_strategies);
+          // Check if the API call was successful
+          if (optionChain.status !== "success") {
+            throw new Error(`API call failed for expiry: ${expiry}`);
+          }
+
+          const optionChainJson = JSON.stringify(optionChain.data);
+
+          if (strategy === "BEAR_CALL_SPREAD") {
+            const list_strategies = bear_call_spread(optionChainJson);
+            const list_strategies_json = JSON.parse(list_strategies);
+            return {
+              daysToExpiry: daysToExpiry(expiry),
+              strategies: list_strategies_json,
+            };
+          }
+
+          // Return a default value if the strategy doesn't match
           return {
             daysToExpiry: daysToExpiry(expiry),
-            strategies: list_strategies_json,
+            strategies: [],
           };
+        } catch (error) {
+          // If an error occurs, throw it to handle it in Promise.all
+          throw new Error(
+            `Failed to fetch data for expiry: ${expiry} - ${error.message}`,
+          );
         }
-
-        // Return a default value or undefined if the strategy doesn't match
-        return {
-          daysToExpiry: daysToExpiry(expiry),
-          strategies: [],
-        };
       });
 
-      Promise.all(promises).then((finalResult) => {
-        setStrategies(finalResult);
-      });
+      Promise.all(promises)
+        .then((finalResult) => {
+          setStrategies(finalResult);
+        })
+        .catch((error) => {
+          console.error(
+            "An error occurred while fetching data:",
+            error.message,
+          );
+          // Handle the error as needed (e.g., show a notification)
+        });
     }
   };
 
