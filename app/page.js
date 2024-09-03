@@ -22,6 +22,7 @@ import {
   Select,
   Highlight,
   Heading,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { differenceInDays } from "date-fns";
 import { useState, useEffect } from "react";
@@ -70,7 +71,7 @@ export default function Home() {
     await init();
 
     if (instrument === instruments.NIFTY) {
-      const expiries = ["2024-09-05", "2024-09-12"];
+      const expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
       const promises = expiries.map(async (expiry) => {
         const optionChain = await getOptionChain(
           instrument,
@@ -189,9 +190,9 @@ export default function Home() {
               </Stack>
             </Container>
 
-            <Container maxW="xl" style={{ marginTop: 10 }}>
+            <SimpleGrid style={{ marginTop: 20 }} columns={3} spacing={30}>
               <Expiries strategies={strategies} />
-            </Container>
+            </SimpleGrid>
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -280,7 +281,6 @@ const Expiries = ({ strategies = [] }) => {
   return strategies.map((strategy, i) => {
     const daysToExpiry = strategy.daysToExpiry;
     const numberOfDays = daysToExpiry.toString();
-    console.log(typeof numberOfDays);
     return (
       <div key={i}>
         <Heading lineHeight="tall">
