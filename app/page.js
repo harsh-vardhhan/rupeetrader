@@ -46,11 +46,6 @@ export default function Home() {
   const [instrument, setInstrument] = useState("");
   const [strategy, setStrategy] = useState("");
 
-  const instruments = {
-    NIFTY: "NSE_INDEX%7CNifty%2050",
-    BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
-  };
-
   const handleAuthorise = async () => {
     await authorise(clientId, redirectUrl);
   };
@@ -67,60 +62,66 @@ export default function Home() {
     return daysLeft;
   };
 
+  const instruments = {
+    NIFTY: "NSE_INDEX%7CNifty%2050",
+    BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
+  };
+
   const scan = async () => {
     await init();
 
+    let expiries;
     if (instrument === instruments.NIFTY) {
-      const expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
-      const promises = expiries.map(async (expiry) => {
-        try {
-          const optionChain = await getOptionChain(
-            instrument,
-            expiry,
-            accessToken,
-          );
+      expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
+    } else if (instrument === instruments.BANK_NIFTY) {
+      expiries = ["2024-09-04", "2024-09-11", "2024-09-25"];
+    }
 
-          // Check if the API call was successful
-          if (optionChain.status !== "success") {
-            throw new Error(`API call failed for expiry: ${expiry}`);
-          }
+    const promises = expiries.map(async (expiry) => {
+      try {
+        const optionChain = await getOptionChain(
+          instrument,
+          expiry,
+          accessToken,
+        );
 
-          const optionChainJson = JSON.stringify(optionChain.data);
+        // Check if the API call was successful
+        if (optionChain.status !== "success") {
+          throw new Error(`API call failed for expiry: ${expiry}`);
+        }
 
-          if (strategy === "BEAR_CALL_SPREAD") {
-            const list_strategies = bear_call_spread(optionChainJson);
-            const list_strategies_json = JSON.parse(list_strategies);
-            return {
-              daysToExpiry: daysToExpiry(expiry),
-              strategies: list_strategies_json,
-            };
-          }
+        const optionChainJson = JSON.stringify(optionChain.data);
 
-          // Return a default value if the strategy doesn't match
+        if (strategy === "BEAR_CALL_SPREAD") {
+          const list_strategies = bear_call_spread(optionChainJson);
+          const list_strategies_json = JSON.parse(list_strategies);
           return {
             daysToExpiry: daysToExpiry(expiry),
-            strategies: [],
+            strategies: list_strategies_json,
           };
-        } catch (error) {
-          // If an error occurs, throw it to handle it in Promise.all
-          throw new Error(
-            `Failed to fetch data for expiry: ${expiry} - ${error.message}`,
-          );
         }
-      });
 
-      Promise.all(promises)
-        .then((finalResult) => {
-          setStrategies(finalResult);
-        })
-        .catch((error) => {
-          console.error(
-            "An error occurred while fetching data:",
-            error.message,
-          );
-          // Handle the error as needed (e.g., show a notification)
-        });
-    }
+        // Return a default value if the strategy doesn't match
+        return {
+          daysToExpiry: daysToExpiry(expiry),
+          strategies: [],
+        };
+      } catch (error) {
+        // If an error occurs, throw it to handle it in Promise.all
+        throw new Error(
+          `Failed to fetch data for expiry: ${expiry} - ${error.message}`,
+        );
+      }
+    });
+
+    Promise.all(promises)
+      .then((finalResult) => {
+        setStrategies(finalResult);
+      })
+      .catch((error) => {
+        console.error("An error occurred while fetching data:", error.message);
+        // Handle the error as needed (e.g., show a notification)
+      });
   };
 
   useEffect(() => {
@@ -197,6 +198,7 @@ export default function Home() {
                   onChange={handleInstrument}
                 >
                   <option value={instruments.NIFTY}>NIFTY 50</option>
+                  <option value={instruments.BANK_NIFTY}>BANK NIFTY</option>
                 </Select>
                 <Select
                   placeholder="Select strategy"
@@ -301,18 +303,9 @@ const Login = ({
 const Expiries = ({ strategies = [] }) => {
   return strategies.map((strategy, i) => {
     const daysToExpiry = strategy.daysToExpiry;
-    const numberOfDays = daysToExpiry.toString();
     return (
       <div key={i}>
-        <Heading lineHeight="tall">
-          <Highlight
-            query={`${numberOfDays} Days`}
-            styles={{ px: "2", py: "1", rounded: "full", bg: "teal.100" }}
-          >
-            {`${numberOfDays} Days to expiry`}
-          </Highlight>
-        </Heading>
-
+        <DaysToExpiry daysToExpiry={daysToExpiry} />
         <Card style={{ marginTop: 10, marginBottom: 10 }}>
           <TableContainer>
             <Table variant="simple">
@@ -333,6 +326,33 @@ const Expiries = ({ strategies = [] }) => {
       </div>
     );
   });
+};
+
+const DaysToExpiry = ({ daysToExpiry }) => {
+  const numberOfDays = daysToExpiry.toString();
+  if (daysToExpiry === 0 || daysToExpiry === 1) {
+    return (
+      <Heading lineHeight="tall">
+        <Highlight
+          query={`${numberOfDays} Day`}
+          styles={{ px: "2", py: "1", rounded: "full", bg: "teal.100" }}
+        >
+          {`${numberOfDays} Day to expiry`}
+        </Highlight>
+      </Heading>
+    );
+  } else {
+    return (
+      <Heading lineHeight="tall">
+        <Highlight
+          query={`${numberOfDays} Days`}
+          styles={{ px: "2", py: "1", rounded: "full", bg: "teal.100" }}
+        >
+          {`${numberOfDays} Days to expiry`}
+        </Highlight>
+      </Heading>
+    );
+  }
 };
 
 const Strategies = ({ strategies = [] }) => {
