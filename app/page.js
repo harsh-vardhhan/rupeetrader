@@ -26,8 +26,17 @@ import {
   Switch,
   useToast,
   FormControl,
+  Tooltip,
 } from "@chakra-ui/react";
-import { differenceInDays } from "date-fns";
+import { QuestionIcon } from "@chakra-ui/icons";
+import {
+  differenceInDays,
+  isBefore,
+  isToday,
+  isAfter,
+  parseISO,
+  startOfDay,
+} from "date-fns";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
 import init, { bear_call_spread } from "../public/wasm/pkg/rupeetrader_wasm.js";
@@ -99,64 +108,95 @@ export default function Home() {
   };
 
   const scan = async () => {
-    await init();
-
-    let expiries;
-    if (instrument === instruments.NIFTY) {
-      expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
-    } else if (instrument === instruments.BANK_NIFTY) {
-      expiries = ["2024-09-04", "2024-09-11", "2024-09-25"];
-    }
-
-    const promises = expiries.map(async (expiry) => {
-      try {
-        const optionChain = await getOptionChain(
-          instrument,
-          expiry,
-          accessToken,
-        );
-
-        // Check if the API call was successful
-        if (optionChain.status !== "success") {
-          throw new Error(`API call failed for expiry: ${expiry}`);
-        }
-
-        const optionChainJson = {
-          optionchain: JSON.stringify(optionChain.data),
-          bid_ask_spread: bidAskSpread,
-          risk_reward_ratio: riskRewardRatio,
-        };
-
-        if (strategy === "BEAR_CALL_SPREAD") {
-          const list_strategies = bear_call_spread(optionChainJson);
-          const list_strategies_json = JSON.parse(list_strategies);
-          return {
-            daysToExpiry: daysToExpiry(expiry),
-            strategies: list_strategies_json,
-          };
-        }
-
-        // Return a default value if the strategy doesn't match
-        return {
-          daysToExpiry: daysToExpiry(expiry),
-          strategies: [],
-        };
-      } catch (error) {
-        // If an error occurs, throw it to handle it in Promise.all
-        throw new Error(
-          `Failed to fetch data for expiry: ${expiry} - ${error.message}`,
-        );
-      }
-    });
-
-    Promise.all(promises)
-      .then((finalResult) => {
-        setStrategies(finalResult);
-      })
-      .catch((error) => {
-        console.error("An error occurred while fetching data:", error.message);
-        // Handle the error as needed (e.g., show a notification)
+    if (instrument === "" || strategy === "") {
+      toast({
+        title: "Instrument & strategy not selected",
+        description: "Please select instrument and strategy.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
       });
+    } else {
+      let expiries;
+      await init();
+      if (instrument === instruments.NIFTY) {
+        expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
+      } else if (instrument === instruments.BANK_NIFTY) {
+        expiries = ["2024-09-11", "2024-09-25"];
+      }
+
+      const now = new Date();
+      const timeCutoff = new Date().setHours(15, 30, 0, 0);
+
+      const promises = expiries
+        .filter((expiry) => {
+          const expiryDate = parseISO(expiry);
+
+          // Exclude dates before today
+          if (isBefore(expiryDate, startOfDay(now))) {
+            return false;
+          }
+
+          // Exclude today's date if it's after 3:30 PM
+          if (isToday(expiryDate) && isAfter(now, timeCutoff)) {
+            return false;
+          }
+
+          return true;
+        })
+        .map(async (expiry) => {
+          try {
+            const optionChain = await getOptionChain(
+              instrument,
+              expiry,
+              accessToken,
+            );
+
+            // Check if the API call was successful
+            if (optionChain.status !== "success") {
+              throw new Error(`API call failed for expiry: ${expiry}`);
+            }
+
+            const optionChainJson = {
+              optionchain: JSON.stringify(optionChain.data),
+              bid_ask_spread: bidAskSpread,
+              risk_reward_ratio: riskRewardRatio,
+            };
+
+            if (strategy === "BEAR_CALL_SPREAD") {
+              const list_strategies = bear_call_spread(optionChainJson);
+              const list_strategies_json = JSON.parse(list_strategies);
+              return {
+                daysToExpiry: daysToExpiry(expiry),
+                strategies: list_strategies_json,
+              };
+            }
+
+            // Return a default value if the strategy doesn't match
+            return {
+              daysToExpiry: daysToExpiry(expiry),
+              strategies: [],
+            };
+          } catch (error) {
+            // If an error occurs, throw it to handle it in Promise.all
+            throw new Error(
+              `Failed to fetch data for expiry: ${expiry} - ${error.message}`,
+            );
+          }
+        });
+
+      Promise.all(promises)
+        .then((finalResult) => {
+          setStrategies(finalResult);
+        })
+        .catch((error) => {
+          console.error(
+            "An error occurred while fetching data:",
+            error.message,
+          );
+          // Handle the error as needed (e.g., show a notification)
+        });
+    }
   };
 
   useEffect(() => {
@@ -188,6 +228,13 @@ export default function Home() {
     localStorage.setItem(REDIRECT_URL_KEY, redirectUrl);
     localStorage.setItem(CODE_KEY, code);
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    toast({
+      title: "Login details saved",
+      description: "login details saved locally",
+      status: "success",
+      duration: 9000,
+      isClosable: true,
+    });
   };
 
   const handleInstrument = (event) => {
@@ -243,9 +290,12 @@ export default function Home() {
                   <option value="BEAR_CALL_SPREAD">Bear Call Spread</option>
                 </Select>
 
-                <FormControl as={SimpleGrid} columns={{ base: 2, lg: 2 }}>
+                <FormControl as={SimpleGrid} columns={{ base: 3, lg: 2 }}>
                   <FormLabel htmlFor="isChecked">
-                    Tight bid-ask spread:
+                    Bid-ask spread &nbsp;
+                    <Tooltip label="bid ask spread not wider than ₹2">
+                      <QuestionIcon />
+                    </Tooltip>
                   </FormLabel>
                   <Switch
                     id="bid-ask-switch"
@@ -253,7 +303,10 @@ export default function Home() {
                     onChange={handleBidAskSpread}
                   />
                   <FormLabel htmlFor="isChecked">
-                    Healthy risk-reward ratio:
+                    Risk-reward ratio &nbsp;
+                    <Tooltip label="max loss is not more than 3 times of max profit">
+                      <QuestionIcon />
+                    </Tooltip>
                   </FormLabel>
                   <Switch
                     id="risk-reward-ratio-switch"
