@@ -59,9 +59,15 @@ export const login = async (code, clientId, apiSecret, redirectUrl) => {
   const userInfo = await makePostRequest(url, data, headers);
 
   if (userInfo.access_token) {
-    return userInfo.access_token;
+    return {
+      success: true,
+      access_token: userInfo.access_token,
+    };
   } else {
-    console.error("Error: access_token field not found");
+    return {
+      success: false,
+      message: "Error: access_token field not found",
+    };
   }
 };
 

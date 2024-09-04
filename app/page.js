@@ -23,6 +23,9 @@ import {
   Highlight,
   Heading,
   SimpleGrid,
+  Switch,
+  useToast,
+  FormControl,
 } from "@chakra-ui/react";
 import { differenceInDays } from "date-fns";
 import { useState, useEffect } from "react";
@@ -45,6 +48,17 @@ export default function Home() {
   // select INSTRUMENT and STRATEGY
   const [instrument, setInstrument] = useState("");
   const [strategy, setStrategy] = useState("");
+  const toast = useToast();
+  const [bidAskSpread, setBidAskSpread] = useState(false);
+  const [riskRewardRatio, setRiskRewardRatio] = useState(false);
+
+  const handleBidAskSpread = () => {
+    setBidAskSpread(!bidAskSpread);
+  };
+
+  const handleRiskRewardRatio = () => {
+    setRiskRewardRatio(!riskRewardRatio);
+  };
 
   const handleAuthorise = async () => {
     await authorise(clientId, redirectUrl);
@@ -52,7 +66,24 @@ export default function Home() {
 
   const handleLogin = async () => {
     const accessToken = await login(code, clientId, apiSecret, redirectUrl);
-    setAccessToken(accessToken);
+    if (accessToken.success) {
+      toast({
+        title: "Access token updated",
+        description: "We've saved access token for you.",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
+      setAccessToken(accessToken.access_token);
+    } else {
+      toast({
+        title: "Failed to get access token",
+        description: "failed to save access token",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
   };
 
   const daysToExpiry = (expiryDate) => {
@@ -90,7 +121,11 @@ export default function Home() {
           throw new Error(`API call failed for expiry: ${expiry}`);
         }
 
-        const optionChainJson = JSON.stringify(optionChain.data);
+        const optionChainJson = {
+          optionchain: JSON.stringify(optionChain.data),
+          bid_ask_spread: bidAskSpread,
+          risk_reward_ratio: riskRewardRatio,
+        };
 
         if (strategy === "BEAR_CALL_SPREAD") {
           const list_strategies = bear_call_spread(optionChainJson);
@@ -207,6 +242,26 @@ export default function Home() {
                 >
                   <option value="BEAR_CALL_SPREAD">Bear Call Spread</option>
                 </Select>
+
+                <FormControl as={SimpleGrid} columns={{ base: 2, lg: 2 }}>
+                  <FormLabel htmlFor="isChecked">
+                    Tight bid-ask spread:
+                  </FormLabel>
+                  <Switch
+                    id="bid-ask-switch"
+                    isChecked={bidAskSpread}
+                    onChange={handleBidAskSpread}
+                  />
+                  <FormLabel htmlFor="isChecked">
+                    Healthy risk-reward ratio:
+                  </FormLabel>
+                  <Switch
+                    id="risk-reward-ratio-switch"
+                    isChecked={riskRewardRatio}
+                    onChange={handleRiskRewardRatio}
+                  />
+                </FormControl>
+
                 <Button colorScheme="blue" onClick={scan}>
                   Scan
                 </Button>
