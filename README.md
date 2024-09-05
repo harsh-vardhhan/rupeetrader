@@ -1,5 +1,8 @@
 # Options Strategy screener
 
+## Broker Support
+- [Upstox](https://upstox.com/)
+
 <img width="600" alt="screener" src="https://github.com/user-attachments/assets/be67d01a-a26f-4331-9abc-465d541f38cd">
 
 ## Instruments
