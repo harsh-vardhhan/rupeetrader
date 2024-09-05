@@ -39,7 +39,10 @@ import {
 } from "date-fns";
 import { useState, useEffect } from "react";
 import { authorise, login, getOptionChain } from "./api";
-import init, { bear_call_spread } from "../public/wasm/pkg/rupeetrader_wasm.js";
+import init, {
+  bear_call_spread,
+  bull_put_spread,
+} from "../public/wasm/pkg/rupeetrader_wasm.js";
 
 export default function Home() {
   const CLIENT_ID_KEY = "clientId";
@@ -98,13 +101,17 @@ export default function Home() {
   const daysToExpiry = (expiryDate) => {
     const targetDate = new Date(expiryDate);
     const currentDate = new Date();
-    const daysLeft = differenceInDays(targetDate, currentDate) + 1;
+    const daysLeft = differenceInDays(targetDate, currentDate);
     return daysLeft;
   };
 
   const instruments = {
     NIFTY: "NSE_INDEX%7CNifty%2050",
     BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
+  };
+  const allStrategies = {
+    BEAR_CALL_SPREAD: "BEAR_CALL_SPREAD",
+    BULL_PUT_SPREAD: "BULL_PUT_SPREAD",
   };
 
   const scan = async () => {
@@ -163,8 +170,15 @@ export default function Home() {
               risk_reward_ratio: riskRewardRatio,
             };
 
-            if (strategy === "BEAR_CALL_SPREAD") {
+            if (strategy === allStrategies.BEAR_CALL_SPREAD) {
               const list_strategies = bear_call_spread(optionChainJson);
+              const list_strategies_json = JSON.parse(list_strategies);
+              return {
+                daysToExpiry: daysToExpiry(expiry),
+                strategies: list_strategies_json,
+              };
+            } else if (strategy === allStrategies.BULL_PUT_SPREAD) {
+              const list_strategies = bull_put_spread(optionChainJson);
               const list_strategies_json = JSON.parse(list_strategies);
               return {
                 daysToExpiry: daysToExpiry(expiry),
@@ -287,7 +301,12 @@ export default function Home() {
                   value={strategy}
                   onChange={handleStrategy}
                 >
-                  <option value="BEAR_CALL_SPREAD">Bear Call Spread</option>
+                  <option value={allStrategies.BEAR_CALL_SPREAD}>
+                    Bear Call Spread
+                  </option>
+                  <option value={allStrategies.BULL_PUT_SPREAD}>
+                    Bull Put Spread
+                  </option>
                 </Select>
 
                 <FormControl as={SimpleGrid} columns={{ base: 3, lg: 2 }}>
