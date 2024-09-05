@@ -400,11 +400,20 @@ const Login = ({
               >
                 Create Upstox App
               </Button>
+            </Box>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <Box>
+              <Heading size="xs" textTransform="uppercase">
+                Get Redirect url from edit
+              </Heading>
               <Image
                 src="/my-apps.png"
                 width={500}
                 height={500}
-                alt="my apps in upstox"
+                alt="client id and api secret"
               />
             </Box>
           </CardBody>
@@ -427,6 +436,21 @@ const Login = ({
             size="sm"
           />
         </div>
+        <Card>
+          <CardBody>
+            <Box>
+              <Heading size="xs" textTransform="uppercase">
+                Get Redirect url from edit
+              </Heading>
+              <Image
+                src="/redirect.png"
+                width={500}
+                height={500}
+                alt="code in app"
+              />
+            </Box>
+          </CardBody>
+        </Card>
         <div>
           <FormLabel>Redirect URL</FormLabel>
           <Input
