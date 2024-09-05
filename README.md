@@ -1,4 +1,4 @@
-# Options Strategy screener
+# Options strategy screener
 
 ## Broker Support
 - [Upstox](https://upstox.com/)
