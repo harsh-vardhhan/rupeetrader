@@ -27,6 +27,12 @@ import {
   useToast,
   FormControl,
   Tooltip,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Box,
+  CardBody,
+  Text,
 } from "@chakra-ui/react";
 import { QuestionIcon } from "@chakra-ui/icons";
 import {
@@ -43,6 +49,7 @@ import init, {
   bear_call_spread,
   bull_put_spread,
 } from "../public/wasm/pkg/rupeetrader_wasm.js";
+import Image from "next/image";
 
 export default function Home() {
   const CLIENT_ID_KEY = "clientId";
@@ -127,9 +134,9 @@ export default function Home() {
       let expiries;
       await init();
       if (instrument === instruments.NIFTY) {
-        expiries = ["2024-09-05", "2024-09-12", "2024-09-26"];
+        expiries = ["2024-09-12", "2024-09-19", "2024-09-26"];
       } else if (instrument === instruments.BANK_NIFTY) {
-        expiries = ["2024-09-11", "2024-09-25"];
+        expiries = ["2024-09-11", "2024-09-18", "2024-09-25"];
       }
 
       const now = new Date();
@@ -368,6 +375,40 @@ const Login = ({
   return (
     <Container maxW="xl">
       <Stack spacing={3}>
+        <Alert status="info">
+          <AlertIcon />
+          <Box>
+            <AlertDescription>
+              <b>Authorise</b> and <b>Login</b> everyday to generate a fresh
+              access token and then <b>Save</b> it
+            </AlertDescription>
+          </Box>
+        </Alert>
+        <Card>
+          <CardBody>
+            <Box>
+              <Heading size="xs" textTransform="uppercase">
+                For first time users:
+              </Heading>
+              <Text pt="2" fontSize="sm">
+                Create an{" "}
+                <a
+                  onClick={() =>
+                    window.open("https://account.upstox.com/developer/apps")
+                  }
+                >
+                  Upstox App
+                </a>
+              </Text>
+              <Image
+                src="/my-apps.png"
+                width={500}
+                height={500}
+                alt="my apps in upstox"
+              />
+            </Box>
+          </CardBody>
+        </Card>
         <div>
           <FormLabel>Client ID</FormLabel>
           <Input
@@ -398,6 +439,21 @@ const Login = ({
         <Button colorScheme="blue" onClick={handleAuthorise}>
           Authorise
         </Button>
+        <Card>
+          <CardBody>
+            <Box>
+              <Heading size="xs" textTransform="uppercase">
+                Get code from url
+              </Heading>
+              <Image
+                src="/code.png"
+                width={500}
+                height={500}
+                alt="code in app"
+              />
+            </Box>
+          </CardBody>
+        </Card>
         <div>
           <FormLabel>Code</FormLabel>
           <Input
