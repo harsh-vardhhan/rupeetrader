@@ -10,11 +10,17 @@ export function bear_call_spread(params: any): string;
 * @returns {string}
 */
 export function bull_put_spread(params: any): string;
+/**
+*/
+export class CreditSpread {
+  free(): void;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_creditspread_free: (a: number, b: number) => void;
   readonly bear_call_spread: (a: number, b: number) => void;
   readonly bull_put_spread: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;

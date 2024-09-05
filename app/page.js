@@ -570,9 +570,10 @@ const Strategies = ({ strategies = [] }) => {
           <Tag style={{ marginBottom: 1 }} colorScheme={"red"}>
             S
           </Tag>{" "}
-          {strategy.sell_strike}
+          {strategy.sell_strike} {strategy.type_}
           <div style={{ marginTop: 3 }}>
-            <Tag colorScheme={"green"}>B</Tag> {strategy.buy_strike}
+            <Tag colorScheme={"green"}>B</Tag> {strategy.buy_strike}{" "}
+            {strategy.type_}
           </div>
         </Td>
         <Td isNumeric>{strategy.max_profit}</Td>

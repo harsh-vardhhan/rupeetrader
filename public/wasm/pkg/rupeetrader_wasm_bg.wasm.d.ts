@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export function __wbg_creditspread_free(a: number, b: number): void;
 export function bear_call_spread(a: number, b: number): void;
 export function bull_put_spread(a: number, b: number): void;
 export function __wbindgen_malloc(a: number, b: number): number;
