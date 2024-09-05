@@ -390,16 +390,16 @@ const Login = ({
               <Heading size="xs" textTransform="uppercase">
                 For first time users:
               </Heading>
-              <Text pt="2" fontSize="md">
-                Create an{" "}
-                <b
-                  onClick={() =>
-                    window.open("https://account.upstox.com/developer/apps")
-                  }
-                >
-                  <u>Upstox App</u>
-                </b>
-              </Text>
+
+              <Button
+                style={{ marginTop: 10 }}
+                colorScheme="teal"
+                onClick={() =>
+                  window.open("https://account.upstox.com/developer/apps")
+                }
+              >
+                Create Upstox App
+              </Button>
               <Image
                 src="/my-apps.png"
                 width={500}
