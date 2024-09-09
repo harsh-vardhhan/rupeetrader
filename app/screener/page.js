@@ -40,6 +40,15 @@ import init, {
 import Header from "../header";
 
 export default function Home() {
+  const instruments = {
+    NIFTY: "NSE_INDEX%7CNifty%2050",
+    BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
+  };
+  const allStrategies = {
+    BEAR_CALL_SPREAD: "BEAR_CALL_SPREAD",
+    BULL_PUT_SPREAD: "BULL_PUT_SPREAD",
+  };
+
   const ACCESS_TOKEN_KEY = "accessToken";
   const [strategies, setStrategies] = useState([]);
   // select INSTRUMENT and STRATEGY
@@ -70,15 +79,6 @@ export default function Home() {
     const currentDate = new Date();
     const daysLeft = differenceInDays(targetDate, currentDate);
     return daysLeft;
-  };
-
-  const instruments = {
-    NIFTY: "NSE_INDEX%7CNifty%2050",
-    BANK_NIFTY: "NSE_INDEX%7CNifty%20Bank",
-  };
-  const allStrategies = {
-    BEAR_CALL_SPREAD: "BEAR_CALL_SPREAD",
-    BULL_PUT_SPREAD: "BULL_PUT_SPREAD",
   };
 
   const scan = async () => {
@@ -214,7 +214,7 @@ export default function Home() {
             </option>
           </Select>
 
-          <FormControl as={SimpleGrid} columns={{ base: 3, lg: 2 }}>
+          <FormControl as={SimpleGrid} columns={{ base: 2, lg: 2 }}>
             <FormLabel htmlFor="isChecked">
               Bid-ask spread &nbsp;
               <Tooltip label="bid ask spread not wider than ₹2">
