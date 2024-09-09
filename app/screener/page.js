@@ -274,7 +274,7 @@ const Expiries = ({ strategies = [] }) => {
                     </Tooltip>
                   </Th>
                   <Th isNumeric>
-                    Breakeven
+                    {"Breakeven "}
                     <Tooltip label="If the underlying expires at this price, the strategy will neither make profit nor loss. % is the distance from spot price">
                       <QuestionIcon />
                     </Tooltip>
