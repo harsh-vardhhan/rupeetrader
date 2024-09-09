@@ -43,8 +43,8 @@ export default function Home() {
   const ACCESS_TOKEN_KEY = "accessToken";
   const [strategies, setStrategies] = useState([]);
   // select INSTRUMENT and STRATEGY
-  const [instrument, setInstrument] = useState("");
-  const [strategy, setStrategy] = useState("");
+  const [instrument, setInstrument] = useState(instruments.NIFTY);
+  const [strategy, setStrategy] = useState(allStrategies.BEAR_CALL_SPREAD);
   const toast = useToast();
   const [bidAskSpread, setBidAskSpread] = useState(false);
   const [riskRewardRatio, setRiskRewardRatio] = useState(false);
