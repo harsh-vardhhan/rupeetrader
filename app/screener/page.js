@@ -21,6 +21,7 @@ import {
   useToast,
   FormControl,
   Tooltip,
+  Text,
 } from "@chakra-ui/react";
 import { QuestionIcon } from "@chakra-ui/icons";
 import {
@@ -266,8 +267,12 @@ const Expiries = ({ strategies = [] }) => {
               <Thead>
                 <Tr>
                   <Th>Strike</Th>
-                  <Th isNumeric>Max Profit</Th>
-                  <Th isNumeric>Max Loss</Th>
+                  <Th isNumeric>
+                    {"Max P/L "}
+                    <Tooltip label="Max Profit & Max Loss">
+                      <QuestionIcon />
+                    </Tooltip>
+                  </Th>
                   <Th isNumeric>Breakeven</Th>
                 </Tr>
               </Thead>
@@ -323,8 +328,16 @@ const Strategies = ({ strategies = [] }) => {
             {strategy.type_}
           </div>
         </Td>
-        <Td isNumeric>{strategy.max_profit}</Td>
-        <Td isNumeric>{strategy.max_loss}</Td>
+        <Td isNumeric>
+          <Text as="b" color="#48BB78">
+            {strategy.max_profit}
+          </Text>
+          <br />
+          <Text as="b" color="#F56565">
+            {"-"}
+            {strategy.max_loss}
+          </Text>
+        </Td>
         <Td isNumeric>{strategy.breakeven}</Td>
       </Tr>
     );
