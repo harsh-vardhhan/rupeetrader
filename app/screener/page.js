@@ -273,7 +273,12 @@ const Expiries = ({ strategies = [] }) => {
                       <QuestionIcon />
                     </Tooltip>
                   </Th>
-                  <Th isNumeric>Breakeven</Th>
+                  <Th isNumeric>
+                    Breakeven
+                    <Tooltip label="If the underlying expires at this price, the strategy will neither make profit nor loss. % is the distance from spot price">
+                      <QuestionIcon />
+                    </Tooltip>
+                  </Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -338,7 +343,13 @@ const Strategies = ({ strategies = [] }) => {
             {strategy.max_loss}
           </Text>
         </Td>
-        <Td isNumeric>{strategy.breakeven}</Td>
+        <Td isNumeric>
+          <Text>{strategy.breakeven}</Text>
+          <Tag style={{ marginBottom: 1 }} colorScheme={"gray"}>
+            {strategy.breakeven_percentage}
+            {"%"}
+          </Tag>
+        </Td>
       </Tr>
     );
   });
