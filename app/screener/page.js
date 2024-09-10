@@ -55,13 +55,6 @@ export default function Home() {
   const [breakevenDistance, setBreakevenDistance] = useState(true);
   const [accessToken, setAccessToken] = useState("");
 
-  useEffect(() => {
-    const accessTokenKey = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (accessTokenKey) {
-      setAccessToken(accessTokenKey);
-    }
-  }, []);
-
   const handleBidAskSpread = () => {
     setBidAskSpread(!bidAskSpread);
   };
@@ -188,6 +181,14 @@ export default function Home() {
   const handleStrategy = (event) => {
     setStrategy(event.target.value);
   };
+
+useEffect(() => {
+    const accessTokenKey = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (accessTokenKey) {
+      setAccessToken(accessTokenKey);
+      scan();
+    }
+  }, []);
 
   return (
     <div>
