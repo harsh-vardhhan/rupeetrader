@@ -33,7 +33,7 @@ export default function Filter({
   const toast = useToast();
 
   return (
-    <Container maxW="lg" style={{ marginTop: 10 }}>
+    <Container maxW="xl" style={{ marginTop: 10 }}>
       <Stack spacing={3}>
         <Select
           placeholder="Select instrument"
