@@ -50,8 +50,9 @@ export default function Home() {
   const [instrument, setInstrument] = useState(instruments.NIFTY);
   const [strategy, setStrategy] = useState(allStrategies.BEAR_CALL_SPREAD);
   const toast = useToast();
-  const [bidAskSpread, setBidAskSpread] = useState(false);
-  const [riskRewardRatio, setRiskRewardRatio] = useState(false);
+  const [bidAskSpread, setBidAskSpread] = useState(true);
+  const [riskRewardRatio, setRiskRewardRatio] = useState(true);
+  const [breakevenDistance, setBreakevenDistance] = useState(true);
   const [accessToken, setAccessToken] = useState("");
 
   useEffect(() => {
@@ -67,6 +68,10 @@ export default function Home() {
 
   const handleRiskRewardRatio = () => {
     setRiskRewardRatio(!riskRewardRatio);
+  };
+
+  const handleBreakevenDistance = () => {
+    setBreakevenDistance(!breakevenDistance);
   };
 
   const daysToExpiry = (expiryDate) => {
@@ -130,6 +135,7 @@ export default function Home() {
               optionchain: JSON.stringify(optionChain.data),
               bid_ask_spread: bidAskSpread,
               risk_reward_ratio: riskRewardRatio,
+              breakeven_percentage_sort: breakevenDistance,
             };
 
             if (strategy === allStrategies.BEAR_CALL_SPREAD) {
@@ -191,12 +197,14 @@ export default function Home() {
         strategy={strategy}
         bidAskSpread={bidAskSpread}
         riskRewardRatio={riskRewardRatio}
+        breakevenDistance={breakevenDistance}
         instruments={instruments}
         allStrategies={allStrategies}
         handleInstrument={handleInstrument}
         handleStrategy={handleStrategy}
         handleBidAskSpread={handleBidAskSpread}
         handleRiskRewardRatio={handleRiskRewardRatio}
+        handleBreakevenDistance={handleBreakevenDistance}
         scan={scan}
       />
 

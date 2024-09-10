@@ -24,9 +24,11 @@ export default function Filter({
   handleStrategy,
   handleBidAskSpread,
   handleRiskRewardRatio,
+  handleBreakevenDistance,
   scan,
   bidAskSpread,
   riskRewardRatio,
+  breakevenDistance,
 }) {
   const toast = useToast();
 
@@ -75,6 +77,17 @@ export default function Filter({
             id="risk-reward-ratio-switch"
             isChecked={riskRewardRatio}
             onChange={handleRiskRewardRatio}
+          />
+          <FormLabel htmlFor="isChecked">
+            Breakeven distance &nbsp;
+            <Tooltip label="Sort by distance between breakeven & spot price">
+              <QuestionIcon />
+            </Tooltip>
+          </FormLabel>
+          <Switch
+            id="risk-reward-ratio-switch"
+            isChecked={breakevenDistance}
+            onChange={handleBreakevenDistance}
           />
         </FormControl>
 
