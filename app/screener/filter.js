@@ -57,7 +57,7 @@ export default function Filter({
 
         <FormControl as={SimpleGrid} columns={{ base: 2, lg: 2 }}>
           <FormLabel htmlFor="isChecked">
-            Bid-ask spread &nbsp;
+            Tight bid-ask spread &nbsp;
             <Tooltip label="bid ask spread not wider than ₹2">
               <QuestionIcon />
             </Tooltip>
@@ -68,7 +68,7 @@ export default function Filter({
             onChange={handleBidAskSpread}
           />
           <FormLabel htmlFor="isChecked">
-            Risk-reward ratio &nbsp;
+            Healthy risk-reward ratio &nbsp;
             <Tooltip label="max loss is not more than 3 times of max profit">
               <QuestionIcon />
             </Tooltip>
@@ -79,7 +79,7 @@ export default function Filter({
             onChange={handleRiskRewardRatio}
           />
           <FormLabel htmlFor="isChecked">
-            Breakeven distance &nbsp;
+            Spot and breakeven distance &nbsp;
             <Tooltip label="Sort by distance between breakeven & spot price">
               <QuestionIcon />
             </Tooltip>
