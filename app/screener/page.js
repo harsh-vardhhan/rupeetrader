@@ -1,9 +1,5 @@
 "use client";
 import {
-  Container,
-  FormLabel,
-  Stack,
-  Button,
   Table,
   Thead,
   Tbody,
@@ -13,13 +9,10 @@ import {
   Td,
   TableContainer,
   Tag,
-  Select,
   Highlight,
   Heading,
   SimpleGrid,
-  Switch,
   useToast,
-  FormControl,
   Tooltip,
   Text,
 } from "@chakra-ui/react";
@@ -39,6 +32,7 @@ import init, {
   bull_put_spread,
 } from "../../public/wasm/pkg/rupeetrader_wasm.js";
 import Header from "../header";
+import Filter from "./filter";
 
 export default function Home() {
   const instruments = {
@@ -192,59 +186,19 @@ export default function Home() {
   return (
     <div>
       <Header />
-      <Container maxW="md" style={{ marginTop: 10 }}>
-        <Stack spacing={3}>
-          <Select
-            placeholder="Select instrument"
-            value={instrument}
-            onChange={handleInstrument}
-          >
-            <option value={instruments.NIFTY}>NIFTY 50</option>
-            <option value={instruments.BANK_NIFTY}>BANK NIFTY</option>
-          </Select>
-          <Select
-            placeholder="Select strategy"
-            value={strategy}
-            onChange={handleStrategy}
-          >
-            <option value={allStrategies.BEAR_CALL_SPREAD}>
-              Bear Call Spread
-            </option>
-            <option value={allStrategies.BULL_PUT_SPREAD}>
-              Bull Put Spread
-            </option>
-          </Select>
-
-          <FormControl as={SimpleGrid} columns={{ base: 2, lg: 2 }}>
-            <FormLabel htmlFor="isChecked">
-              Bid-ask spread &nbsp;
-              <Tooltip label="bid ask spread not wider than ₹2">
-                <QuestionIcon />
-              </Tooltip>
-            </FormLabel>
-            <Switch
-              id="bid-ask-switch"
-              isChecked={bidAskSpread}
-              onChange={handleBidAskSpread}
-            />
-            <FormLabel htmlFor="isChecked">
-              Risk-reward ratio &nbsp;
-              <Tooltip label="max loss is not more than 3 times of max profit">
-                <QuestionIcon />
-              </Tooltip>
-            </FormLabel>
-            <Switch
-              id="risk-reward-ratio-switch"
-              isChecked={riskRewardRatio}
-              onChange={handleRiskRewardRatio}
-            />
-          </FormControl>
-
-          <Button colorScheme="blue" onClick={scan}>
-            Scan
-          </Button>
-        </Stack>
-      </Container>
+      <Filter
+        instrument={instrument}
+        strategy={strategy}
+        bidAskSpread={bidAskSpread}
+        riskRewardRatio={riskRewardRatio}
+        instruments={instruments}
+        allStrategies={allStrategies}
+        handleInstrument={handleInstrument}
+        handleStrategy={handleStrategy}
+        handleBidAskSpread={handleBidAskSpread}
+        handleRiskRewardRatio={handleRiskRewardRatio}
+        scan={scan}
+      />
 
       <div style={{ margin: 15 }}>
         <SimpleGrid style={{ marginTop: 20 }} columns={3} spacing={30}>
