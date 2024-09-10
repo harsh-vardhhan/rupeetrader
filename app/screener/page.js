@@ -53,7 +53,7 @@ export default function Home() {
   const [bidAskSpread, setBidAskSpread] = useState(true);
   const [riskRewardRatio, setRiskRewardRatio] = useState(true);
   const [breakevenDistance, setBreakevenDistance] = useState(true);
-  const [accessToken, setAccessToken] = useState("");
+  const [accessToken, setAccessToken] = useState(null);
 
   const handleBidAskSpread = () => {
     setBidAskSpread(!bidAskSpread);
@@ -186,9 +186,15 @@ useEffect(() => {
     const accessTokenKey = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessTokenKey) {
       setAccessToken(accessTokenKey);
-      scan();
     }
   }, []);
+
+useEffect(() => {
+    if (accessToken) {
+      scan();
+    }
+  }, [accessToken]);
+
 
   return (
     <div>
