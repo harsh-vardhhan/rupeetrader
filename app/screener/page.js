@@ -77,7 +77,7 @@ export default function Home() {
   const daysToExpiry = (expiryDate) => {
     const targetDate = new Date(expiryDate);
     const currentDate = new Date();
-    const daysLeft = differenceInDays(targetDate, currentDate);
+    const daysLeft = differenceInDays(targetDate, currentDate)+1;
     return daysLeft;
   };
 
