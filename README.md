@@ -1,6 +1,6 @@
 # Options strategy screener
 
-## business logic repo
+## Business logic repo
 [WASM Code](https://github.com/harsh-vardhhan/rupeetrader-wasm/)
 
 ## Broker Support
