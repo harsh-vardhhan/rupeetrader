@@ -87,9 +87,9 @@ export default function Home() {
       let expiries;
       await init();
       if (instrument === instruments.NIFTY) {
-        expiries = ["2024-09-12", "2024-09-19", "2024-09-26"];
+        expiries = ["2024-12-19", "2024-12-26"];
       } else if (instrument === instruments.BANK_NIFTY) {
-        expiries = ["2024-09-11", "2024-09-18", "2024-09-25"];
+        expiries = ["2024-12-24"];
       }
 
       const now = new Date();
